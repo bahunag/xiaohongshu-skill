@@ -46,30 +46,13 @@ Claude 会自动调用后台服务完成操作，结果直接展示给你。
 
 ## 安装步骤
 
-### 前置条件：获取 MCP 服务二进制
-
-本 Skill 依赖 `xiaohongshu-mcp` 后台服务驱动。请联系作者获取对应平台的二进制文件：
-
-| 系统 | 需要的文件 |
-|------|-----------|
-| Windows (x64) | `xiaohongshu-mcp-windows-amd64.exe` + `xiaohongshu-login-windows-amd64.exe` |
-| macOS Apple Silicon | `xiaohongshu-mcp-darwin-arm64` + `xiaohongshu-login-darwin-arm64` |
-| macOS Intel | `xiaohongshu-mcp-darwin-amd64` + `xiaohongshu-login-darwin-amd64` |
-| Linux (x64) | `xiaohongshu-mcp-linux-amd64` + `xiaohongshu-login-linux-amd64` |
-
-下载后放到 `~/xiaohongshu-mcp/` 目录备用。
-
----
-
 ### macOS / Linux — 一键安装
-
-获得二进制文件后，将它们放入 `~/xiaohongshu-mcp/`，然后运行：
 
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/bahunag/xiaohongshu-skill/main/install.sh)
 ```
 
-脚本会自动完成：安装 Skill → 赋权 → 扫码登录 → 启动服务。
+脚本会自动完成：下载 MCP 服务 → 安装 Skill → 赋权 → 扫码登录 → 启动服务。
 
 ---
 

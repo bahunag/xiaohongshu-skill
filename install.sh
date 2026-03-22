@@ -7,6 +7,7 @@ set -e
 SKILL_DIR="$HOME/.claude/skills/xiaohongshu"
 MCP_DIR="$HOME/xiaohongshu-mcp"
 MCP_PORT=18060
+MCP_REPO="xpzouying/xiaohongshu-mcp"
 
 # 颜色
 GREEN='\033[0;32m'; YELLOW='\033[1;33m'; RED='\033[0;31m'; NC='\033[0m'
@@ -34,60 +35,72 @@ echo ""
 echo "── 第一步：安装 Skill ──"
 if [ -d "$SKILL_DIR" ]; then
   warn "Skill 已存在，更新中..."
-  cd "$SKILL_DIR" && git pull
+  cd "$SKILL_DIR" && git pull --quiet
+  info "Skill 已更新"
 else
-  git clone https://github.com/bahunag/xiaohongshu-skill.git "$SKILL_DIR"
+  git clone --quiet https://github.com/bahunag/xiaohongshu-skill.git "$SKILL_DIR"
   info "Skill 已安装到 $SKILL_DIR"
 fi
 
-# ── 第二步：检查 MCP 服务 ────────────────────────────────────────
+# ── 第二步：下载 MCP 服务 ────────────────────────────────────────
 echo ""
-echo "── 第二步：检查 MCP 服务 ──"
+echo "── 第二步：下载 MCP 服务 ──"
+mkdir -p "$MCP_DIR"
+
 MCP_BIN="$MCP_DIR/xiaohongshu-mcp-$PLATFORM"
 LOGIN_BIN="$MCP_DIR/xiaohongshu-login-$PLATFORM"
 
-if [ -f "$MCP_BIN" ]; then
-  info "MCP 服务已存在：$MCP_BIN"
+# 获取最新版本号
+LATEST=$(curl -fsSL "https://api.github.com/repos/$MCP_REPO/releases/latest" \
+  | grep '"tag_name"' | cut -d'"' -f4)
+[ -z "$LATEST" ] && error "无法获取版本信息，请检查网络连接"
+info "最新版本：$LATEST"
+
+# 下载 MCP 服务
+MCP_URL="https://github.com/$MCP_REPO/releases/download/$LATEST/xiaohongshu-mcp-$PLATFORM.tar.gz"
+LOGIN_URL="https://github.com/$MCP_REPO/releases/download/$LATEST/xiaohongshu-login-$PLATFORM.tar.gz"
+
+if [ ! -f "$MCP_BIN" ]; then
+  echo "  下载 xiaohongshu-mcp-$PLATFORM ..."
+  curl -fsSL "$MCP_URL" | tar -xz -C "$MCP_DIR"
+  info "MCP 服务下载完成"
 else
-  warn "未找到 MCP 服务二进制文件"
-  echo ""
-  echo "  请手动下载以下两个文件，放到 $MCP_DIR/ 目录："
-  echo "    - xiaohongshu-mcp-$PLATFORM"
-  echo "    - xiaohongshu-login-$PLATFORM"
-  echo ""
-  echo "  下载后运行以下命令完成安装："
-  echo "    mkdir -p $MCP_DIR"
-  echo "    chmod +x $MCP_BIN $LOGIN_BIN"
-  echo "    $LOGIN_BIN        # 扫码登录"
-  echo "    XHS_COOKIES_SRC=/tmp/cookies.json nohup $MCP_BIN -port :$MCP_PORT > /tmp/xhs-mcp.log 2>&1 &"
-  echo ""
-  info "Skill 文件已就绪，等待你手动放入 MCP 二进制后即可使用"
-  exit 0
+  info "MCP 服务已存在，跳过下载"
+fi
+
+if [ ! -f "$LOGIN_BIN" ]; then
+  echo "  下载 xiaohongshu-login-$PLATFORM ..."
+  curl -fsSL "$LOGIN_URL" | tar -xz -C "$MCP_DIR"
+  info "登录工具下载完成"
+else
+  info "登录工具已存在，跳过下载"
 fi
 
 # ── 第三步：赋权 ─────────────────────────────────────────────────
 echo ""
 echo "── 第三步：设置权限 ──"
-chmod +x "$MCP_BIN" 2>/dev/null && info "MCP 服务已赋权"
-[ -f "$LOGIN_BIN" ] && chmod +x "$LOGIN_BIN" 2>/dev/null && info "登录工具已赋权"
+chmod +x "$MCP_BIN" && info "MCP 服务已赋权"
+chmod +x "$LOGIN_BIN" && info "登录工具已赋权"
 
 # ── macOS 安全提示 ────────────────────────────────────────────────
 if [ "$OS" = "Darwin" ]; then
   echo ""
-  warn "macOS 安全提示：首次运行可能被拦截"
-  echo "  如遇弹窗，请前往：系统设置 → 隐私与安全性 → 仍要打开"
+  warn "macOS 安全提示：首次运行可能被系统拦截"
+  echo "  如果弹出「无法打开，因为无法验证开发者」："
+  echo "  → 系统设置 → 隐私与安全性 → 点「仍要打开」"
+  echo "  → 或运行：xattr -d com.apple.quarantine $MCP_BIN $LOGIN_BIN"
+  echo ""
+  # 尝试自动去除隔离标记
+  xattr -d com.apple.quarantine "$MCP_BIN" 2>/dev/null && info "已自动去除 macOS 隔离标记" || true
+  xattr -d com.apple.quarantine "$LOGIN_BIN" 2>/dev/null || true
 fi
 
-# ── 第四步：登录 ─────────────────────────────────────────────────
+# ── 第四步：扫码登录 ──────────────────────────────────────────────
 echo ""
 echo "── 第四步：扫码登录 ──"
-if [ -f "$LOGIN_BIN" ]; then
-  echo "  即将打开登录窗口，请用小红书 App 扫码..."
-  "$LOGIN_BIN" || warn "登录程序退出，如已扫码成功可继续"
-  info "登录完成，Cookies 已保存到 /tmp/cookies.json"
-else
-  warn "未找到登录工具 $LOGIN_BIN，跳过登录步骤"
-fi
+echo "  即将打开登录窗口，请用小红书 App 扫码..."
+"$LOGIN_BIN" || warn "登录程序退出，如已扫码成功可继续"
+info "登录完成，Cookies 已保存到 /tmp/cookies.json"
 
 # ── 第五步：启动服务 ──────────────────────────────────────────────
 echo ""
@@ -109,10 +122,13 @@ fi
 
 # ── 完成 ──────────────────────────────────────────────────────────
 echo ""
-echo "═══════════════════════════════════"
-echo " 安装完成！"
-echo "═══════════════════════════════════"
+echo "══════════════════════════════════════"
+echo " ✅ 安装完成！"
+echo "══════════════════════════════════════"
 echo ""
 echo "  在 Claude Code 中直接说："
 echo "  「帮我分析小红书账号「张三」近30天最火的笔记」"
+echo ""
+echo "  服务日志：cat /tmp/xhs-mcp.log"
+echo "  重启服务：XHS_COOKIES_SRC=/tmp/cookies.json nohup $MCP_BIN -port :$MCP_PORT > /tmp/xhs-mcp.log 2>&1 &"
 echo ""
