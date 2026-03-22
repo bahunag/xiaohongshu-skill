@@ -46,65 +46,57 @@ Claude 会自动调用后台服务完成操作，结果直接展示给你。
 
 ## 安装步骤
 
-### 第一步：下载 MCP 服务
+### 前置条件：获取 MCP 服务二进制
 
-从 [xiaohongshu-mcp Releases](https://github.com/sanshao85/xiaohongshu-mcp/releases) 下载对应平台的二进制文件：
+本 Skill 依赖 `xiaohongshu-mcp` 后台服务驱动。请联系作者获取对应平台的二进制文件：
 
-| 系统 | 文件 |
-|------|------|
-| Windows (x64) | `xiaohongshu-mcp-windows-amd64.exe` |
-| macOS Apple Silicon (M1/M2/M3) | `xiaohongshu-mcp-darwin-arm64` |
-| macOS Intel | `xiaohongshu-mcp-darwin-amd64` |
-| Linux (x64) | `xiaohongshu-mcp-linux-amd64` |
+| 系统 | 需要的文件 |
+|------|-----------|
+| Windows (x64) | `xiaohongshu-mcp-windows-amd64.exe` + `xiaohongshu-login-windows-amd64.exe` |
+| macOS Apple Silicon | `xiaohongshu-mcp-darwin-arm64` + `xiaohongshu-login-darwin-arm64` |
+| macOS Intel | `xiaohongshu-mcp-darwin-amd64` + `xiaohongshu-login-darwin-amd64` |
+| Linux (x64) | `xiaohongshu-mcp-linux-amd64` + `xiaohongshu-login-linux-amd64` |
 
-放到固定目录，比如 `~/xiaohongshu-mcp/`。
+下载后放到 `~/xiaohongshu-mcp/` 目录备用。
 
-**macOS / Linux 赋予执行权限：**
+---
+
+### macOS / Linux — 一键安装
+
+获得二进制文件后，将它们放入 `~/xiaohongshu-mcp/`，然后运行：
+
 ```bash
-chmod +x ~/xiaohongshu-mcp/xiaohongshu-mcp-darwin-arm64
+bash <(curl -fsSL https://raw.githubusercontent.com/bahunag/xiaohongshu-skill/main/install.sh)
 ```
 
-### 第二步：安装 Skill
+脚本会自动完成：安装 Skill → 赋权 → 扫码登录 → 启动服务。
 
-将本仓库克隆到 Claude Code 的 skills 目录：
+---
 
-```bash
-# macOS / Linux
-git clone https://github.com/bahuang/xiaohongshu-skill \
-  ~/.claude/skills/xiaohongshu
+### Windows — 手动安装
 
-# Windows (PowerShell)
-git clone https://github.com/bahuang/xiaohongshu-skill `
-  "$env:USERPROFILE\.claude\skills\xiaohongshu"
+**第一步：安装 Skill**
+
+```powershell
+git clone https://github.com/bahunag/xiaohongshu-skill "$env:USERPROFILE\.claude\skills\xiaohongshu"
 ```
 
-### 第三步：首次登录
+**第二步：扫码登录**
 
-运行登录工具扫码：
-
-```bash
-# macOS / Linux
-~/xiaohongshu-mcp/xiaohongshu-login-darwin-arm64
-
-# Windows
+```powershell
 C:\path\to\xiaohongshu-login-windows-amd64.exe
 ```
 
-**Windows 额外步骤**：登录后将 Cookies 复制到服务读取位置：
+登录后同步 Cookies：
 
 ```powershell
 New-Item -ItemType Directory -Force C:\tmp
 Copy-Item "$env:LOCALAPPDATA\Temp\cookies.json" "C:\tmp\cookies.json" -Force
 ```
 
-### 第四步：启动服务
+**第三步：启动服务**
 
-```bash
-# macOS / Linux
-XHS_COOKIES_SRC=/tmp/cookies.json \
-  nohup ~/xiaohongshu-mcp/xiaohongshu-mcp-darwin-arm64 -port :18060 > /tmp/xhs-mcp.log 2>&1 &
-
-# Windows (PowerShell)
+```powershell
 $env:XHS_COOKIES_SRC = "C:\tmp\cookies.json"
 Start-Process -NoNewWindow "C:\path\to\xiaohongshu-mcp-windows-amd64.exe" -ArgumentList "-port", ":18060"
 ```
