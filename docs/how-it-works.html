@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>小红书 Skill · 它是怎么工作的</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #FF2442;
+    --red-light: #FFE8EC;
+    --red-mid: #FFB3BE;
+    --cream: #FDFAF6;
+    --warm-white: #FAF7F2;
+    --sand: #F2EDE4;
+    --sand-dark: #E8E0D4;
+    --ink: #1A1510;
+    --ink-mid: #4A3F35;
+    --ink-soft: #8A7D72;
+    --ink-ghost: #C4B8B0;
+    --green: #2DBD8E;
+    --green-light: #E6F9F3;
+    --blue: #3D7EFF;
+    --blue-light: #EBF1FF;
+    --amber: #F59E0B;
+    --amber-light: #FEF3C7;
+    --shadow-sm: 0 2px 8px rgba(26,21,16,0.06);
+    --shadow-md: 0 6px 24px rgba(26,21,16,0.09);
+    --shadow-lg: 0 16px 48px rgba(26,21,16,0.12);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    line-height: 1.7;
+    font-size: 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* ── 顶部导航 ── */
+  nav {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(253,250,246,0.88);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--sand-dark);
+    padding: 0 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+  }
+
+  .nav-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--ink);
+    text-decoration: none;
+  }
+
+  .logo-dot {
+    width: 24px;
+    height: 24px;
+    background: var(--red);
+    border-radius: 6px;
+    display: grid;
+    place-items: center;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: 'Noto Sans SC', sans-serif;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 28px;
+    list-style: none;
+  }
+
+  .nav-links a {
+    font-size: 13px;
+    color: var(--ink-soft);
+    text-decoration: none;
+    transition: color 0.2s;
+    font-weight: 400;
+  }
+
+  .nav-links a:hover { color: var(--red); }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 80px 40px 64px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--red-light);
+    color: var(--red);
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+    letter-spacing: 0.02em;
+  }
+
+  .hero-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.8); }
+  }
+
+  .hero h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--ink);
+    margin-bottom: 20px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero h1 em {
+    font-style: normal;
+    color: var(--red);
+  }
+
+  .hero-sub {
+    font-size: 18px;
+    color: var(--ink-mid);
+    max-width: 600px;
+    line-height: 1.8;
+    font-weight: 300;
+    margin-bottom: 36px;
+  }
+
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .stat-num {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .stat-label {
+    font-size: 12px;
+    color: var(--ink-soft);
+    letter-spacing: 0.03em;
+  }
+
+  /* ── 内容区 ── */
+  .content {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 120px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-bottom: 80px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 32px;
+  }
+
+  .section-num {
+    width: 32px;
+    height: 32px;
+    background: var(--ink);
+    color: white;
+    border-radius: 8px;
+    display: grid;
+    place-items: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .section h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--ink);
+  }
+
+  .section-desc {
+    color: var(--ink-mid);
+    font-size: 15px;
+    margin-bottom: 28px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  /* ── 架构图（层叠卡片）── */
+  .arch-stack {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .arch-layer {
+    position: relative;
+    border-radius: 16px;
+    padding: 24px 28px;
+    margin-bottom: 0;
+    border: 1.5px solid transparent;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    cursor: default;
+  }
+
+  .arch-layer:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* 连接线 */
+  .arch-connector {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 36px;
+    position: relative;
+  }
+
+  .arch-connector::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--sand-dark), var(--sand-dark));
+  }
+
+  .connector-label {
+    background: var(--cream);
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 11px;
+    color: var(--ink-soft);
+    position: relative;
+    z-index: 1;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  .layer-you { background: #FFFBF5; border-color: var(--amber); box-shadow: 0 4px 20px rgba(245,158,11,0.1); }
+  .layer-claude { background: var(--warm-white); border-color: var(--ink-ghost); box-shadow: var(--shadow-sm); }
+  .layer-skill { background: var(--red-light); border-color: var(--red-mid); box-shadow: 0 4px 20px rgba(255,36,66,0.08); }
+  .layer-mcp { background: var(--blue-light); border-color: #B3CCFF; box-shadow: 0 4px 20px rgba(61,126,255,0.08); }
+  .layer-xhs { background: var(--green-light); border-color: #A0E8D0; box-shadow: 0 4px 20px rgba(45,189,142,0.08); }
+
+  .layer-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+
+  .layer-title {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .layer-desc {
+    font-size: 13.5px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .layer-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .chip {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 500;
+  }
+
+  .chip-red { background: var(--red-light); color: var(--red); }
+  .chip-blue { background: var(--blue-light); color: var(--blue); }
+  .chip-green { background: var(--green-light); color: var(--green); }
+  .chip-amber { background: var(--amber-light); color: var(--amber); }
+  .chip-ink { background: var(--sand); color: var(--ink-mid); }
+
+  /* ── 对话气泡通信图 ── */
+  .chat-scene {
+    background: var(--warm-white);
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 20px;
+    padding: 28px;
+    margin-bottom: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .chat-scene::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--red), var(--red-mid));
+    border-radius: 20px 20px 0 0;
+  }
+
+  .scene-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--red);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chat-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .chat-msg {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .chat-msg.right {
+    flex-direction: row-reverse;
+  }
+
+  .avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    flex-shrink: 0;
+    font-weight: 600;
+  }
+
+  .av-user { background: var(--amber-light); color: var(--amber); }
+  .av-claude { background: var(--sand); color: var(--ink-mid); font-size: 11px; }
+  .av-skill { background: var(--red-light); color: var(--red); font-size: 11px; }
+  .av-mcp { background: var(--blue-light); color: var(--blue); font-size: 11px; }
+  .av-xhs { background: var(--green-light); color: var(--green); font-size: 11px; }
+
+  .bubble-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    max-width: 75%;
+  }
+
+  .bubble-name {
+    font-size: 11px;
+    color: var(--ink-soft);
+    padding: 0 4px;
+    font-weight: 400;
+  }
+
+  .chat-msg.right .bubble-name { text-align: right; }
+
+  .bubble {
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 13.5px;
+    line-height: 1.65;
+    color: var(--ink);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .bubble-user { background: var(--amber-light); border-bottom-right-radius: 4px; }
+  .bubble-claude { background: white; border-bottom-left-radius: 4px; border: 1px solid var(--sand-dark); }
+  .bubble-skill { background: var(--red-light); border-bottom-left-radius: 4px; }
+  .bubble-mcp { background: var(--blue-light); border-bottom-left-radius: 4px; }
+  .bubble-xhs { background: var(--green-light); border-bottom-left-radius: 4px; }
+
+  .bubble em {
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    background: rgba(0,0,0,0.06);
+    padding: 1px 5px;
+    border-radius: 4px;
+  }
+
+  .chat-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 42px;
+    color: var(--ink-ghost);
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .chat-arrow::before {
+    content: '↓';
+    font-size: 14px;
+  }
+
+  /* ── 功能卡片 ── */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 12px;
+  }
+
+  .tool-card {
+    background: white;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tool-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: var(--red-mid);
+  }
+
+  .tool-card.locked {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .tool-card.locked::after {
+    content: '待开发';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: var(--sand);
+    color: var(--ink-soft);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  .tool-card:hover:not(.locked) { }
+
+  .tool-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .tool-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--red);
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .tool-desc {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── 第三方服务 ── */
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 12px;
+  }
+
+  .service-card {
+    background: white;
+    border: 1.5px solid var(--sand-dark);
+    border-radius: 14px;
+    padding: 20px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .service-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .service-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: grid;
+    place-items: center;
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .service-name {
+    font-family: 'Noto Serif SC', serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: var(--ink);
+  }
+
+  .service-plain {
+    font-size: 12px;
+    color: var(--ink-soft);
+    margin-bottom: 8px;
+    font-weight: 500;
+    font-style: italic;
+  }
+
+  .service-desc {
+    font-size: 13px;
+    color: var(--ink-mid);
+    line-height: 1.65;
+    font-weight: 300;
+  }
+
+  /* ── 时序流程 ── */
+  .flow-line {
+    position: relative;
+    padding-left: 32px;
+    margin-bottom: 0;
+  }
+
+  .flow-line::before {
+    content: '';
+    position: absolute;
+    left: 10px;
+    top: 20px;
+    bottom: -16px;
+    width: 2px;
+    background: var(--sand-dark);
+  }
+
+  .flow-line:last-child::before { display: none; }
+
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px 0;
+  }
+
+  .step-dot {
+    position: absolute;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2.5px solid var(--sand-dark);
+    background: var(--cream);
+    flex-shrink: 0;
+    margin-top: 4px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+
+  .flow-line:hover .step-dot {
+    border-color: var(--red);
+    background: var(--red-light);
+  }
+
+  .step-body { flex: 1; }
+
+  .step-label {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--ink-soft);
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .step-text {
+    font-size: 14px;
+    color: var(--ink-mid);
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .step-text strong { color: var(--ink); font-weight: 500; }
+
+  /* ── Callout ── */
+  .callout {
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin: 20px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 1.7;
+    font-weight: 300;
+  }
+
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-info { background: var(--blue-light); color: var(--ink-mid); border: 1px solid #C5D8FF; }
+  .callout-tip { background: var(--green-light); color: var(--ink-mid); border: 1px solid #B0E8D8; }
+  .callout-warn { background: var(--amber-light); color: var(--ink-mid); border: 1px solid #FCD98A; }
+
+  /* ── Divider ── */
+  .divider {
+    border: none;
+    border-top: 1.5px solid var(--sand-dark);
+    margin: 20px 0;
+  }
+
+  /* ── Footer ── */
+  footer {
+    background: var(--ink);
+    color: var(--ink-ghost);
+    padding: 40px;
+    text-align: center;
+    font-size: 13px;
+    line-height: 1.8;
+    font-weight: 300;
+  }
+
+  footer strong { color: white; font-weight: 500; }
+
+  /* ── 进度条指示 ── */
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 2px;
+    background: var(--red);
+    z-index: 200;
+    transition: width 0.1s linear;
+  }
+
+  /* ── Responsive ── */
+  @media (max-width: 640px) {
+    nav { padding: 0 20px; }
+    .hero, .content { padding-left: 20px; padding-right: 20px; }
+    .hero { padding-top: 48px; }
+    .tools-grid, .services-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+  }
+
+  /* ── 滚动出现动画 ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* ── 标注 ── */
+  .annotation {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--sand);
+    color: var(--ink-soft);
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    vertical-align: middle;
+    margin-left: 4px;
+    font-weight: 400;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progress"></div>
+
+<!-- 导航 -->
+<nav>
+  <a href="#" class="nav-logo">
+    <span class="logo-dot">红</span>
+    小红书 Skill
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">怎么运作</a></li>
+    <li><a href="#arch">技术架构</a></li>
+    <li><a href="#tools">功能列表</a></li>
+    <li><a href="#services">第三方服务</a></li>
+    <li><a href="#flow">通信流程</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">文档版本 v1.0.0 · 2026-03-22</div>
+  <h1>把 AI 接进<em>小红书</em>，<br>是怎么做到的？</h1>
+  <p class="hero-sub">你不需要懂任何代码。这页文档用说人话的方式，告诉你这个 Skill 在背后是怎么工作的——就像拆解一台你一直在用但从没打开过的咖啡机。</p>
+  <div class="hero-stats">
+    <div class="stat">
+      <div class="stat-num">7</div>
+      <div class="stat-label">已上线功能</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">6</div>
+      <div class="stat-label">开发中功能</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">1</div>
+      <div class="stat-label">核心服务程序</div>
+    </div>
+    <div class="stat">
+      <div class="stat-num">∞</div>
+      <div class="stat-label">可分析的账号</div>
+    </div>
+  </div>
+</div>
+
+<!-- 内容 -->
+<div class="content">
+
+  <!-- 01 它怎么工作 -->
+  <div class="section reveal" id="how">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <h2>一句话讲清楚它怎么工作</h2>
+    </div>
+    <p class="section-desc">你跟 Claude（AI 助手）说"帮我分析张咋啦的近30天笔记"，接下来发生的事情，就像你让一个朋友帮你做事——他有自己的工具箱，知道该用哪把工具。</p>
+
+    <div class="callout callout-info">
+      <span class="callout-icon">💬</span>
+      <div>
+        <strong>用一个比喻来说：</strong><br>
+        你是<strong>点单的客人</strong>，Claude 是<strong>服务员</strong>，小红书 Skill 是<strong>菜单和操作手册</strong>，xiaohongshu-mcp 是<strong>后厨</strong>，小红书是<strong>食材仓库</strong>。你说"来一份数据分析"，服务员查手册，手册说调后厨，后厨去仓库取数据，端上来给你。
+      </div>
+    </div>
+
+    <div class="chat-scene reveal">
+      <div class="scene-label">🎬 场景一：最常用功能——分析竞品账号</div>
+      <div class="chat-flow">
+
+        <div class="chat-msg right">
+          <div class="bubble-wrap">
+            <div class="bubble-name">你</div>
+            <div class="bubble bubble-user">帮我分析一下「张咋啦」近30天发布的笔记，哪几篇最火？</div>
+          </div>
+          <div class="avatar av-user">你</div>
+        </div>
+
+        <div class="chat-arrow">Claude 收到，看了看自己的工具箱</div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude · AI 助手</div>
+            <div class="bubble bubble-claude">好的，我看到你安装了「小红书 Skill」，里面有个叫 <em>search_feeds</em> 的工具可以搜账号。先用它找到张咋啦……</div>
+          </div>
+        </div>
+
+        <div class="chat-arrow">Claude 调用工具，工具去联系后台服务</div>
+
+        <div class="chat-msg">
+          <div class="avatar av-mcp">MCP</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">xiaohongshu-mcp · 后台服务程序</div>
+            <div class="bubble bubble-mcp">收到请求，我打开了一个看不见的浏览器，以你的身份登录小红书，搜索"张咋啦"……找到了！userId 是 <em>59757acd</em>，帮你拿到了她所有的笔记列表 📋</div>
+          </div>
+        </div>
+
+        <div class="chat-arrow">拿到列表，逐篇获取详细数据</div>
+
+        <div class="chat-msg">
+          <div class="avatar av-mcp">MCP</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">xiaohongshu-mcp · 后台服务程序</div>
+            <div class="bubble bubble-mcp">逐篇打开笔记页面，记录每篇的点赞数、收藏数、评论数、发布时间……近30天共4篇，数据汇总好了 ✅</div>
+          </div>
+        </div>
+
+        <div class="chat-arrow">数据回传，Claude 整理成报告</div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude · AI 助手</div>
+            <div class="bubble bubble-claude">我帮你整理好了 👇<br><br><strong>🏆 最火一篇：</strong>「把我推荐的 AI 高质量信息源做成了 skill！」<br>点赞 3,245 · 收藏 3,924 · 评论 120<br>发布时间：3天前<br><br>所有100%都是视频，标题都是第一人称……（以下是完整分析报告）</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout callout-tip reveal">
+      <span class="callout-icon">✨</span>
+      <div>整个过程你什么都不需要手动做。你就说了一句话，背后已经有程序自动打开浏览器、登录账号、翻页、抓数据、关闭浏览器，整个流程30秒内完成。</div>
+    </div>
+  </div>
+
+  <!-- 02 技术架构 -->
+  <div class="section reveal" id="arch">
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <h2>技术架构：从上到下，分层读懂</h2>
+    </div>
+    <p class="section-desc">整个系统像一栋楼，每层各司其职，信息从顶层传下来，结果从底层传回去。把鼠标放到每层上，感受一下每层的作用。</p>
+
+    <div class="arch-stack">
+
+      <!-- 第一层：你 -->
+      <div class="arch-layer layer-you reveal">
+        <div class="layer-tag" style="color: var(--amber)">🏠 第一层 · 顶层</div>
+        <div class="layer-title">你（使用者）</div>
+        <div class="layer-desc">整个系统的起点。你用中文说一句话，比如「帮我看看 AI 相关的热门笔记」。不需要懂代码，就像你给朋友发微信一样。</div>
+        <div class="layer-chips">
+          <span class="chip chip-amber">自然语言</span>
+          <span class="chip chip-amber">中文指令</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <span class="connector-label">语言理解 · 意图识别</span>
+      </div>
+
+      <!-- 第二层：Claude -->
+      <div class="arch-layer layer-claude reveal">
+        <div class="layer-tag" style="color: var(--ink-soft)">🧠 第二层</div>
+        <div class="layer-title">Claude（AI 大脑）</div>
+        <div class="layer-desc">Anthropic 公司开发的 AI。它理解你说的话，判断需要做什么，然后查看自己有哪些工具可以用。它是整个系统的"大脑"和"调度员"。</div>
+        <div class="layer-chips">
+          <span class="chip chip-ink">语言理解</span>
+          <span class="chip chip-ink">任务规划</span>
+          <span class="chip chip-ink">工具调度</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <span class="connector-label">读取说明书 · 决定用哪个工具</span>
+      </div>
+
+      <!-- 第三层：Skill -->
+      <div class="arch-layer layer-skill reveal">
+        <div class="layer-tag" style="color: var(--red)">📖 第三层</div>
+        <div class="layer-title">小红书 Skill（操作手册）</div>
+        <div class="layer-desc">你现在看的这个 Skill，本质上是一个 Markdown 文档，里面写着"遇到小红书相关的请求，应该怎么做、有哪些工具、怎么调用它们"。Claude 读完它，就知道了该做什么。</div>
+        <div class="layer-chips">
+          <span class="chip chip-red">SKILL.md 文档</span>
+          <span class="chip chip-red">工具说明</span>
+          <span class="chip chip-red">触发条件</span>
+          <span class="chip chip-red">工作流程</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <span class="connector-label">HTTP 协议 · MCP 格式</span>
+      </div>
+
+      <!-- 第四层：MCP 服务 -->
+      <div class="arch-layer layer-mcp reveal">
+        <div class="layer-tag" style="color: var(--blue)">⚙️ 第四层</div>
+        <div class="layer-title">xiaohongshu-mcp（执行引擎）</div>
+        <div class="layer-desc">一个运行在你电脑上的小程序（端口 18060）。它是真正干活的那个——收到指令后，打开一个看不见的浏览器，模拟人的操作，登录小红书、搜索、翻页、提取数据。用 Go 语言写的，速度很快。</div>
+        <div class="layer-chips">
+          <span class="chip chip-blue">go-rod 浏览器引擎</span>
+          <span class="chip chip-blue">端口 :18060</span>
+          <span class="chip chip-blue">Cookies 登录</span>
+        </div>
+      </div>
+
+      <div class="arch-connector">
+        <span class="connector-label">模拟人工操作浏览器</span>
+      </div>
+
+      <!-- 第五层：小红书 -->
+      <div class="arch-layer layer-xhs reveal">
+        <div class="layer-tag" style="color: var(--green)">🌐 第五层 · 底层</div>
+        <div class="layer-title">小红书（数据来源）</div>
+        <div class="layer-desc">最终的数据来源。程序以你的账号身份访问小红书网站，取到点赞数、收藏数、笔记内容等真实数据。你得先扫码登录，才能取到数据。</div>
+        <div class="layer-chips">
+          <span class="chip chip-green">真实用户数据</span>
+          <span class="chip chip-green">需要登录状态</span>
+          <span class="chip chip-green">Cookies 验证</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 03 功能列表 -->
+  <div class="section reveal" id="tools">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <h2>功能列表：能做什么，不能做什么</h2>
+    </div>
+    <p class="section-desc">现在上线了 7 个功能，6 个还在开发中（标了🔒的那些暂时不能用）。</p>
+
+    <div class="tools-grid">
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">🔐</span>
+        <div class="tool-name">check_login_status</div>
+        <div class="tool-desc">检查你是否还登录着。就像看手机屏幕左上角有没有 WiFi 信号，一眼知道能不能用。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">📱</span>
+        <div class="tool-name">get_login_qrcode</div>
+        <div class="tool-desc">生成一个二维码图片，你用小红书 App 扫一下，就登录上了。跟扫码进入朋友分享的链接一样。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">🔍</span>
+        <div class="tool-name">search_feeds</div>
+        <div class="tool-desc">搜索关键词，找笔记。可以按「最多点赞」「最新」等方式排序，还能筛选时间段和内容类型。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">🏠</span>
+        <div class="tool-name">list_feeds</div>
+        <div class="tool-desc">获取小红书首页给你推荐的内容——和你打开 App 看到的一样，反映的是你账号的兴趣标签。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">👤</span>
+        <div class="tool-name">user_profile</div>
+        <div class="tool-desc">获取某个账号的主页信息：粉丝数、获赞数，以及他/她发过的所有笔记列表。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">📄</span>
+        <div class="tool-name">get_feed_detail</div>
+        <div class="tool-desc">打开某篇笔记的完整内容：正文、图片、<strong>精确的</strong>点赞数/收藏数/评论数，以及评论列表。</div>
+      </div>
+
+      <div class="tool-card reveal">
+        <span class="tool-icon">🗑️</span>
+        <div class="tool-name">delete_cookies</div>
+        <div class="tool-desc">清除登录状态，退出账号。就像手机上点「退出登录」一样。</div>
+      </div>
+
+      <!-- 以下待开发 -->
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">💬</span>
+        <div class="tool-name">post_comment_to_feed</div>
+        <div class="tool-desc">在笔记下面发评论。</div>
+      </div>
+
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">↩️</span>
+        <div class="tool-name">reply_comment_in_feed</div>
+        <div class="tool-desc">回复某条评论。</div>
+      </div>
+
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">❤️</span>
+        <div class="tool-name">like_feed</div>
+        <div class="tool-desc">给笔记点赞或取消点赞。</div>
+      </div>
+
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">⭐</span>
+        <div class="tool-name">favorite_feed</div>
+        <div class="tool-desc">收藏或取消收藏笔记。</div>
+      </div>
+
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">📸</span>
+        <div class="tool-name">publish_content</div>
+        <div class="tool-desc">发布图文笔记，支持定时发布。</div>
+      </div>
+
+      <div class="tool-card locked reveal">
+        <span class="tool-icon">🎬</span>
+        <div class="tool-name">publish_with_video</div>
+        <div class="tool-desc">发布视频笔记。</div>
+      </div>
+
+    </div>
+
+    <div class="callout callout-warn reveal" style="margin-top: 20px;">
+      <span class="callout-icon">🔒</span>
+      <div>标了「待开发」的6个功能目前<strong>不可使用</strong>，调用会报错。它们涉及往账号里写入数据（发评论、点赞、发笔记），需要更严格的风控测试，后续版本会陆续开放。</div>
+    </div>
+  </div>
+
+  <!-- 04 通信流程 -->
+  <div class="section reveal" id="flow">
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <h2>各部分之间是怎么"传话"的</h2>
+    </div>
+    <p class="section-desc">每次你提出请求，背后会发生一系列"传话"——就像一个工作群里，同事之间把任务层层传下去，再把结果传回来。</p>
+
+    <div class="chat-scene reveal">
+      <div class="scene-label">🔗 技术层面：一次完整请求的通信链路</div>
+      <div class="chat-flow">
+
+        <div class="chat-msg right">
+          <div class="bubble-wrap">
+            <div class="bubble-name">你</div>
+            <div class="bubble bubble-user">帮我搜一下「AI工具」最近最火的笔记</div>
+          </div>
+          <div class="avatar av-user">你</div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude → Skill 文档</div>
+            <div class="bubble bubble-claude">我去看看 SKILL.md 说怎么做……好，它说用 <em>search_feeds</em> 工具，参数是 keyword="AI工具", sort_by="最多点赞"</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-skill">📖</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Skill 文档 → MCP 服务</div>
+            <div class="bubble bubble-skill">发送 HTTP 请求到 <em>localhost:18060/mcp</em>，格式是 JSON，带上 Mcp-Session-Id 身份凭证，请求调用 <em>search_feeds</em> 工具</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-mcp">⚙️</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">MCP 服务 → 小红书网站</div>
+            <div class="bubble bubble-mcp">打开隐身浏览器，加载 Cookies 登录状态，访问 <em>xiaohongshu.com</em>，模拟用户搜索"AI工具"，滚动页面抓取结果</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-xhs">🌐</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">小红书 → MCP 服务</div>
+            <div class="bubble bubble-xhs">返回搜索结果，包含每篇笔记的 id、标题、作者、封面图、点赞数</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-mcp">⚙️</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">MCP 服务 → Claude</div>
+            <div class="bubble bubble-mcp">把网页里的信息整理成干净的 JSON 格式返回，22条结果，第一条是「deepseek这套组合拳，别人以为我开挂了」，点赞 11.9万</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude → 你</div>
+            <div class="bubble bubble-claude">我找到了22条结果，帮你整理好了 Top 5，最火的是……（以下是完整报告）</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="callout callout-info reveal">
+      <span class="callout-icon">🔑</span>
+      <div>
+        <strong>Cookies 是什么，为什么这么重要？</strong><br>
+        Cookies 就是你的"登录通行证"，存在一个叫 <code style="background:rgba(0,0,0,0.06);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">cookies.json</code> 的文件里。MCP 服务每次模拟你访问小红书时，都要带着这个通行证，否则小红书会把它当成机器人，拒绝访问。如果提示「未登录」，就是这个通行证过期了，需要重新扫码刷新。
+      </div>
+    </div>
+  </div>
+
+  <!-- 05 第三方服务 -->
+  <div class="section reveal" id="services">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <h2>用到了哪些第三方服务</h2>
+    </div>
+    <p class="section-desc">这个 Skill 站在几个已有工具的肩膀上。以下是它们分别是什么、做什么用的。</p>
+
+    <div class="services-grid">
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #F0F0F0;">🤖</div>
+        <div class="service-name">Claude（Anthropic）</div>
+        <div class="service-plain">AI 大脑</div>
+        <div class="service-desc">Anthropic 公司做的 AI 助手。它负责理解你说的话、规划做事步骤、调用工具、整理结果。整个系统的"指挥官"。</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #FFE8EC;">⚙️</div>
+        <div class="service-name">xiaohongshu-mcp</div>
+        <div class="service-plain">专用浏览器机器人</div>
+        <div class="service-desc">一个开源程序（Go 语言写的），专门为小红书设计。它能打开一个"隐身浏览器"，模拟真实用户操作，把网页数据整理成 AI 能读懂的格式。</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #EBF1FF;">🕹️</div>
+        <div class="service-name">go-rod</div>
+        <div class="service-plain">浏览器遥控器</div>
+        <div class="service-desc">xiaohongshu-mcp 内部用的工具库。就像一个遥控器，能控制浏览器点击、滚动、等待、截图……你看不到它，但它在默默干活。</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #E6F9F3;">🔌</div>
+        <div class="service-name">MCP 协议</div>
+        <div class="service-plain">AI 和程序之间的"普通话"</div>
+        <div class="service-desc">Model Context Protocol，Anthropic 制定的一套规范。有了它，AI 可以跟各种外部程序对话，就像手机充电口统一成 USB-C 一样，大家说同一种语言。</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #FEF3C7;">🐍</div>
+        <div class="service-name">Python</div>
+        <div class="service-plain">中间层脚本语言</div>
+        <div class="service-desc">Claude 用 Python 代码来发请求给 MCP 服务。就像写一张快递单，指定要寄什么、寄到哪、用什么方式。这些代码你不需要写，Claude 自动生成。</div>
+      </div>
+
+      <div class="service-card reveal">
+        <div class="service-icon" style="background: #F0FFF4;">🌐</div>
+        <div class="service-name">小红书（数据来源）</div>
+        <div class="service-plain">数据仓库</div>
+        <div class="service-desc">最终所有笔记、点赞数、评论都来自小红书的真实网站。这个 Skill 只是帮你"读"数据，不会绕过任何安全限制，以你自己的账号身份访问。</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 06 完整时序 -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <h2>从你说话到拿到数据，每一步发生了什么</h2>
+    </div>
+    <p class="section-desc">完整的时间线，从头到尾拆开来看。每步只需要零点几秒，整体30秒内完成。</p>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 1 步</div>
+        <div class="step-text"><strong>你说话</strong> → 用中文打出你的请求，Claude 收到</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 2 步</div>
+        <div class="step-text"><strong>Claude 识别意图</strong> → 判断这是小红书相关请求，找到「小红书 Skill」文档</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 3 步</div>
+        <div class="step-text"><strong>Claude 读取 Skill</strong> → 知道有哪些工具可用、调用参数是什么</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 4 步</div>
+        <div class="step-text"><strong>发 HTTP 请求</strong> → Python 代码向 <code style="background:var(--sand);padding:1px 5px;border-radius:3px;font-family:monospace;font-size:12px">localhost:18060/mcp</code> 发送初始化请求，拿到 Session-Id</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 5 步</div>
+        <div class="step-text"><strong>调用工具</strong> → 带上 Session-Id 再发一条请求，指定工具名称和参数（比如 keyword="张咋啦"）</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 6 步</div>
+        <div class="step-text"><strong>MCP 开始执行</strong> → 程序打开隐身浏览器，加载你的 Cookies，访问小红书网站</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 7 步</div>
+        <div class="step-text"><strong>抓取数据</strong> → 模拟人工操作：输入关键词、等待页面加载、读取每个数字</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 8 步</div>
+        <div class="step-text"><strong>整理格式</strong> → 把网页 HTML 转换成干净的 JSON 格式（结构化数据），关闭浏览器</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 9 步</div>
+        <div class="step-text"><strong>返回给 Claude</strong> → Claude 收到 JSON 数据，理解其中的含义</div>
+      </div>
+    </div>
+
+    <div class="flow-line reveal">
+      <div class="step-dot"></div>
+      <div class="step-body">
+        <div class="step-label">第 10 步</div>
+        <div class="step-text"><strong>Claude 输出</strong> → 把数据整理成你看得懂的中文报告，展示在对话框里</div>
+      </div>
+    </div>
+
+    <div class="callout callout-tip reveal" style="margin-top: 28px;">
+      <span class="callout-icon">⏱️</span>
+      <div>整个10步流程，单次工具调用大约 <strong>3～8秒</strong>。分析一个账号需要多次调用（搜索 + 获取主页 + 逐篇详情），总时间约 <strong>30秒～2分钟</strong>，取决于笔记数量。</div>
+    </div>
+  </div>
+
+  <!-- 07 场景二 -->
+  <div class="section reveal">
+    <div class="section-header">
+      <div class="section-num">07</div>
+      <h2>另一个场景：搜索热点话题</h2>
+    </div>
+    <p class="section-desc">账号分析是最常用的功能，但「搜索热点话题」也同样实用——适合内容创作者选题用。</p>
+
+    <div class="chat-scene reveal">
+      <div class="scene-label">🎬 场景二：找某个话题最近的爆款内容</div>
+      <div class="chat-flow">
+
+        <div class="chat-msg right">
+          <div class="bubble-wrap">
+            <div class="bubble-name">你</div>
+            <div class="bubble bubble-user">帮我看看最近一周「vibe coding」这个话题，小红书上最火的笔记是哪几篇？</div>
+          </div>
+          <div class="avatar av-user">你</div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude</div>
+            <div class="bubble bubble-claude">好，先用 <em>search_feeds</em> 搜索「vibe coding」，设置排序为「��多点赞」，时间范围「一周内」……</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-mcp">⚙️</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">MCP 服务</div>
+            <div class="bubble bubble-mcp">搜索完成，拿到 20 条结果。现在对前 5 名逐篇用 <em>get_feed_detail</em> 获取正文摘要和热门评论……</div>
+          </div>
+        </div>
+
+        <div class="chat-msg">
+          <div class="avatar av-claude">AI</div>
+          <div class="bubble-wrap">
+            <div class="bubble-name">Claude → 你</div>
+            <div class="bubble bubble-claude">
+              整理好了！<br><br>
+              <strong>📊 vibe coding 话题热点报告（一周内）</strong><br>
+              共采集 20 篇 · 总互动量 XX<br><br>
+              🏆 第1名：「我办的 Vibe coding 活动 氛围好好啊」<br>
+              点赞 364 · 收藏 75 · 评论 26<br>
+              摘要：分享了一次线下活动……<br><br>
+              共同规律：都是视频形式，标题都带情感词……
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer>
+  <div style="margin-bottom: 8px;">
+    <strong>小红书 Skill</strong> · v1.0.0 · 2026-03-22
+  </div>
+  <div>
+    已上线 7 个功能 · 6 个待开发 · 基于 xiaohongshu-mcp 构建<br>
+    这份文档用来解释一个工具的内部构造，不构成任何使用建议。
+  </div>
+</footer>
+
+<script>
+  // 进度条
+  const progressBar = document.getElementById('progress');
+  window.addEventListener('scroll', () => {
+    const scrolled = window.scrollY;
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    const pct = (scrolled / total * 100).toFixed(1);
+    progressBar.style.width = pct + '%';
+  });
+
+  // 滚动揭示动画
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+  // 导航高亮
+  const sections = document.querySelectorAll('.section[id]');
+  const navLinks = document.querySelectorAll('.nav-links a');
+
+  const secObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        navLinks.forEach(a => {
+          a.style.color = '';
+          if (a.getAttribute('href') === '#' + entry.target.id) {
+            a.style.color = 'var(--red)';
+          }
+        });
+      }
+    });
+  }, { threshold: 0.5 });
+
+  sections.forEach(s => secObserver.observe(s));
+</script>
+</body>
+</html>
