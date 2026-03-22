@@ -56,33 +56,20 @@ bash <(curl -fsSL https://raw.githubusercontent.com/bahunag/xiaohongshu-skill/ma
 
 ---
 
-### Windows — 手动安装
+### Windows — 一键安装
 
-**第一步：安装 Skill**
-
-```powershell
-git clone https://github.com/bahunag/xiaohongshu-skill "$env:USERPROFILE\.claude\skills\xiaohongshu"
-```
-
-**第二步：扫码登录**
+在 **PowerShell** 中运行：
 
 ```powershell
-C:\path\to\xiaohongshu-login-windows-amd64.exe
+irm https://raw.githubusercontent.com/bahunag/xiaohongshu-skill/main/install.ps1 | iex
 ```
 
-登录后同步 Cookies：
+> 如果提示执行策略受限，改用：
+> ```powershell
+> Set-ExecutionPolicy -Scope Process Bypass -Force; irm https://raw.githubusercontent.com/bahunag/xiaohongshu-skill/main/install.ps1 | iex
+> ```
 
-```powershell
-New-Item -ItemType Directory -Force C:\tmp
-Copy-Item "$env:LOCALAPPDATA\Temp\cookies.json" "C:\tmp\cookies.json" -Force
-```
-
-**第三步：启动服务**
-
-```powershell
-$env:XHS_COOKIES_SRC = "C:\tmp\cookies.json"
-Start-Process -NoNewWindow "C:\path\to\xiaohongshu-mcp-windows-amd64.exe" -ArgumentList "-port", ":18060"
-```
+脚本会自动完成：下载 MCP 服务 → 安装 Skill → 扫码登录 → 同步 Cookies → 启动服务。
 
 ---
 

@@ -56,24 +56,15 @@ LATEST=$(curl -fsSL "https://api.github.com/repos/$MCP_REPO/releases/latest" \
 [ -z "$LATEST" ] && error "无法获取版本信息，请检查网络连接"
 info "最新版本：$LATEST"
 
-# 下载 MCP 服务
+# 下载 MCP 服务（tar.gz 内同时包含 mcp 主程序和 login 登录工具）
 MCP_URL="https://github.com/$MCP_REPO/releases/download/$LATEST/xiaohongshu-mcp-$PLATFORM.tar.gz"
-LOGIN_URL="https://github.com/$MCP_REPO/releases/download/$LATEST/xiaohongshu-login-$PLATFORM.tar.gz"
 
 if [ ! -f "$MCP_BIN" ]; then
-  echo "  下载 xiaohongshu-mcp-$PLATFORM ..."
+  echo "  下载 xiaohongshu-mcp-$PLATFORM.tar.gz ..."
   curl -fsSL "$MCP_URL" | tar -xz -C "$MCP_DIR"
-  info "MCP 服务下载完成"
+  info "MCP 服务及登录工具下载完成"
 else
   info "MCP 服务已存在，跳过下载"
-fi
-
-if [ ! -f "$LOGIN_BIN" ]; then
-  echo "  下载 xiaohongshu-login-$PLATFORM ..."
-  curl -fsSL "$LOGIN_URL" | tar -xz -C "$MCP_DIR"
-  info "登录工具下载完成"
-else
-  info "登录工具已存在，跳过下载"
 fi
 
 # ── 第三步：赋权 ─────────────────────────────────────────────────
